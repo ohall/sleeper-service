@@ -1,0 +1,24 @@
+{
+  "name": "sleeper-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "Oakley Hall <oakley349@gmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "@langchain/core": "^0.3.27",
+    "@langchain/openai": "^0.3.16",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "langchain": "^0.3.8",
+    "nodemon": "^3.1.9",
+    "uninstall": "^0.0.0"
+  }
+}
