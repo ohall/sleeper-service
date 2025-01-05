@@ -1,6 +1,6 @@
 # sleeper-service
 
-## Dev Setup
+## Dev Local Setup
 
 ### Install dependencies
 ```bash
@@ -13,7 +13,7 @@ npm install
 npm run dev
 ```
 
-### Set up environment variables
+### Set up environment variables locally
 
 ```bash
 cp .env.example .env
@@ -27,7 +27,10 @@ npm run get-token
 ```
 
 ### Test the server
-
+#### Locally
 ```bash
-./test.sh
+./test.sh local
 ```
+
+## Heroku Setup
+[Heroku Setup](HEROKU.md)
