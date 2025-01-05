@@ -1,11 +1,11 @@
 // server.js
 import express from 'express';
-const port = 3000;
+const port = process.env.PORT || 3000;
 import { config } from "dotenv";
 import { ChatOpenAI } from "@langchain/openai";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import pkg from 'express-oauth2-jwt-bearer';
-const { auth, attemptSilentLogin } = pkg;
+const { auth } = pkg;
 import logger from "./logger.js";
 config();
 const app = express();
