@@ -1,15 +1,16 @@
 // server.js
 import express from 'express';
-const port = process.env.PORT || 3000;
+const port = process.env.EXPRESS_PORT || 3000;
 import { config } from "dotenv";
-import { ChatOpenAI } from "@langchain/openai";
-import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import pkg from 'express-oauth2-jwt-bearer';
 const { auth } = pkg;
-import logger from "./logger.js";
+import logger from "./src/logger.js";
+import { startSlack, stopSlack } from "./src/slackbot.js";
+import openai from "./scripts/prompt.js";
 config();
 const app = express();
 app.use(express.json());
+startSlack();
 
 const jwtCheck = auth({
   audience: 'https://dev-x0mw43xpbysu3ay2.us.auth0.com/api/v2/',
@@ -17,19 +18,23 @@ const jwtCheck = auth({
   tokenSigningAlg: 'RS256',
 });
 
-const model = new ChatOpenAI({ model: "gpt-3.5-turbo" });
 
 app.post('/prompt', jwtCheck, async (req, res) => {
-  const messages = [
-    new SystemMessage(req.body?.system || "You are helping to debug an http request."),
-    new HumanMessage(req.body?.user || "No prompt provided."),  
-  ];
-  logger.info(`Request: ${JSON.stringify(req.body)}`);
-  const response = await model.invoke(messages);
-  logger.info(`Response: ${response.content}`);
-  res.send(response.content);
+  const response = await openai(req.body?.system || "You are a helpful assistant.", 
+    req.body?.user || "No prompt provided.");
+  res.send(response);
 });
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  logger.info(`Server is running on port ${port}`);
+});
+
+process.on('SIGTERM', async () => {
+  try {
+    await stopSlack();
+    process.exit(0);
+  } catch (error) {
+    logger.error('Error stopping app:', error);
+    process.exit(1);
+  }
 });
