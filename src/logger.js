@@ -5,7 +5,7 @@ const logger = winston.createLogger({
     format: winston.format.combine(
         winston.format.timestamp(),
         winston.format.json(),
-        winston.format.prettyPrint()
+        process.env.NODE_ENV === 'local' ? winston.format.prettyPrint() : winston.format.json()
     ),
     transports: [
         new winston.transports.Console(),
