@@ -29,8 +29,8 @@ slack.event('app_mention', async ({ event, say }) => {
 });
 
 async function startSlack() {
-  await slack.start(process.env.SLACK_PORT || 3001);
-  logger.info('⚡️ Slack bot is running!');
+  await slack.start(process.env.PORT+1 || 3001);
+  logger.info(`⚡️ Slack bot is running on port ${process.env.PORT+1}`);
 }
 
 function stopSlack() {
