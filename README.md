@@ -33,4 +33,4 @@ npm run get-token
 ```
 
 ## Heroku Setup
-[Heroku Setup](HEROKU.md)
+[Heroku Setup](./docs/HEROKU.md)

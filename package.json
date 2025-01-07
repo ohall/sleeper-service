@@ -9,7 +9,7 @@
     "build": "npm install",
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "get-token": "node getToken.js"
+    "get-token": "node ./scripts/getToken.js"
   },
   "keywords": [],
   "author": "Oakley Hall <oakley349@gmail.com>",
@@ -17,6 +17,7 @@
   "dependencies": {
     "@langchain/core": "^0.3.27",
     "@langchain/openai": "^0.3.16",
+    "@slack/bolt": "^4.2.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "express-oauth2-jwt-bearer": "^1.6.0",
