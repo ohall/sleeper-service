@@ -1,4 +1,5 @@
 # sleeper-service
+Sleeper service is an LLM agent that exposes an HTTP API and a Slack Bot.
 
 ## Dev Local Setup
 
