@@ -2,7 +2,7 @@ import logger from "./logger.js";
 import pkg from '@slack/bolt';
 const { App } = pkg;
 import { config } from "dotenv";
-import { gpt4o } from "./openai.js";
+import { gpt35Turbo } from "./openai.js";
 import prompts from "../configs/prompts.js"
 import messageRouter from "./messageRouter.js";
 config();
@@ -16,7 +16,8 @@ const slack = new App({
 
 slack.message(/.*/, async ({ message, say }) => {
   logger.info('Received message event:', message);
-  await say(await messageRouter(prompts.routing.system, message.text));
+  await say(await gpt35Turbo(prompts.user_message.system, message.text));
+  // await say(await messageRouter(prompts.routing.system, message.text));
 });
 
 slack.event('app_mention', async ({ event, say }) => {
