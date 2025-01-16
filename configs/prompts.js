@@ -1,6 +1,6 @@
 const prompts = {
     user_message: {
-        "system": "You're a helpful assistant who loves books.  Always say something nice to the user.",
+        "system": "You are a friendly, supportive chatbot. Offer concise, helpful answers to questions. If no question is asked, keep replies short. All responses must be appropriate and easy to understand for children.",
         "user": "No prompt provided."
     },
     mention_message: {
