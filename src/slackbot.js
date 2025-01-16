@@ -2,8 +2,9 @@ import logger from "./logger.js";
 import pkg from '@slack/bolt';
 const { App } = pkg;
 import { config } from "dotenv";
-import openai from "../scripts/prompt.js";
+import { gpt4o } from "./openai.js";
 import prompts from "../configs/prompts.js"
+import messageRouter from "./messageRouter.js";
 config();
 
 const slack = new App({
@@ -15,15 +16,14 @@ const slack = new App({
 
 slack.message(/.*/, async ({ message, say }) => {
   logger.info('Received message event:', message);
-  const system = prompts.user_message.system;
-  await say(await openai(system, message.text));
+  await say(await messageRouter(prompts.routing.system, message.text));
 });
 
 slack.event('app_mention', async ({ event, say }) => {
   logger.info('Received mention event:', event);
   const system = prompts.mention_message.system;
   await say({
-    text: await openai(system, event.text),
+    text: await gpt4o(system, event.text),
     thread_ts: event.ts
   });
 });

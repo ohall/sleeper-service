@@ -6,11 +6,15 @@ import pkg from 'express-oauth2-jwt-bearer';
 const { auth } = pkg;
 import logger from "./src/logger.js";
 import { startSlack, stopSlack } from "./src/slackbot.js";
-import openai from "./scripts/prompt.js";
+import { gpt35Turbo } from "./src/openai.js";
+import prompts from "./configs/prompts.js";
+console.log(prompts);
 config();
 const app = express();
 app.use(express.json());
 startSlack();
+
+
 
 const jwtCheck = auth({
   audience: 'https://dev-x0mw43xpbysu3ay2.us.auth0.com/api/v2/',
@@ -20,7 +24,7 @@ const jwtCheck = auth({
 
 
 app.post('/prompt', jwtCheck, async (req, res) => {
-  const response = await openai(req.body?.system || "You are a helpful assistant.", 
+  const response = await gpt35Turbo(req.body?.system || "You are a helpful assistant.", 
     req.body?.user || "No prompt provided.");
   res.send(response);
 });
