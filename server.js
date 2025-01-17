@@ -7,21 +7,18 @@ const { auth } = pkg;
 import logger from "./src/logger.js";
 import { startSlack, stopSlack } from "./src/slackbot.js";
 import { gpt35Turbo } from "./src/openai.js";
-import prompts from "./configs/prompts.js";
-console.log(prompts);
+import menu from "./src/menu.js";
 config();
 const app = express();
 app.use(express.json());
 startSlack();
-
-
+menu();
 
 const jwtCheck = auth({
   audience: 'https://dev-x0mw43xpbysu3ay2.us.auth0.com/api/v2/',
   issuerBaseURL: 'https://dev-x0mw43xpbysu3ay2.us.auth0.com/',
   tokenSigningAlg: 'RS256',
 });
-
 
 app.post('/prompt', jwtCheck, async (req, res) => {
   const response = await gpt35Turbo(req.body?.system || "You are a helpful assistant.", 

@@ -20,7 +20,6 @@ slack.message(/.*/, async ({ message, say }) => {
   // await say(await messageRouter(prompts.routing.system, message.text));
 });
 
-
 slack.event('app_mention', async ({ event, say }) => {
   logger.info('Received mention event:', event);
   const system = prompts.mention_message.system;
@@ -40,4 +39,4 @@ function stopSlack() {
   logger.info('Slack bot stopped');
 }
 
-export { startSlack, stopSlack };
+export { startSlack, stopSlack, slack };
