@@ -1,5 +1,6 @@
 # sleeper-service
-Sleeper service is an LLM agent that exposes an HTTP API and a Slack Bot.
+Sleeper service is an LLM agent designed to help help around the house.  It talks to the kids, generates grocery lists, and does other chores.
+
 
 ## Dev Local Setup
 
