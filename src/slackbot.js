@@ -20,11 +20,11 @@ slack.message(/.*/, async ({ message, say }) => {
   // await say(await messageRouter(prompts.routing.system, message.text));
 });
 
-slack.message("app_mention", async ({ event, say }) => {
+slack.event("app_mention", async ({ event, say }) => {
   logger.info("Received mention event:", event);
   const system = prompts.mention_message.system;
   await say({
-    text: await gpt35Turbo(prompts.user_message.system, event.text),
+    text: await gpt35Turbo(system, event.text),
     thread_ts: event.ts,
   });
 });
