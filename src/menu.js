@@ -23,7 +23,22 @@ slack.action(/.*/, async ({ ack, body, client, logger }) => {
     const reaction =
       body.actions[0].text.text === ":+1:" ? "thumbsup" : "thumbsdown";
     const value = body.actions[0].value;
-    
+
+    // Update the message to remove the buttons after a reaction
+    await client.chat.update({
+      channel: channel,
+      ts: messageTs,
+      blocks: [
+        {
+          type: "section",
+          text: {
+            type: "plain_text",
+            text: value,
+          },
+        },
+      ],
+    });
+
     await slack.client.reactions.add({
       channel: channel,
       name: reaction,
