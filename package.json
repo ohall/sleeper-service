@@ -8,8 +8,10 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npm install",
     "start": "node server.js",
-    "dev": "NODE_ENV=local nodemon server.js",
-    "get-token": "node ./scripts/getToken.js"
+    "dev": "npm run format && NODE_ENV=local nodemon server.js",
+    "get-token": "node ./scripts/getToken.js",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
   },
   "keywords": [],
   "author": "Oakley Hall <oakley349@gmail.com>",
@@ -19,11 +21,13 @@
     "@langchain/openai": "^0.3.16",
     "@slack/bolt": "^4.2.0",
     "dotenv": "^16.4.7",
+    "eslint": "^9.18.0",
     "express": "^4.21.2",
     "express-oauth2-jwt-bearer": "^1.6.0",
     "langchain": "^0.3.8",
     "node-cron": "^3.0.3",
     "nodemon": "^3.1.9",
+    "prettier": "^3.4.2",
     "uninstall": "^0.0.0",
     "winston": "^3.17.0"
   },
