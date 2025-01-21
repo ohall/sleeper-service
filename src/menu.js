@@ -4,6 +4,8 @@ import { config } from "dotenv";
 import logger from "./logger.js";
 import prompts from "../configs/prompts.js";
 import { slack } from "./slackbot.js";
+import { currentWeek, currentYear } from "./utils.js";
+import { updateOne } from "./services/db.js";
 config();
 
 // const MENU_CHANNEL = "#weekly-menu";
@@ -13,40 +15,46 @@ const MENU_INTERVAL = "0 14 * * 5";
 // const MENU_INTERVAL = "* * * * *";
 const systemPrompt = prompts.meal_planning.system;
 
-slack.action(/.*/, async ({ ack, body, client, logger }) => {
+const DISLIKE_REACTION = "thumbsdown";
+const LIKE_REACTION = "thumbsup";
+
+slack.action(/.*/, async ({ ack, body }) => {
   ack();
   // console.log(`HERE: ${JSON.stringify(body, null, 2)}`);
-  try {
-    // Get the original message timestamp from the button action
-    const messageTs = body.message.ts;
-    const channel = body.channel.id;
-    const reaction =
-      body.actions[0].text.text === ":+1:" ? "thumbsup" : "thumbsdown";
-    const value = body.actions[0].value;
+  // Get the original message timestamp from the button action
+  const messageTs = body.message.ts;
+  const channel = body.channel.id;
+  const reaction =
+    body.actions[0].text.text === ":+1:" ? LIKE_REACTION : DISLIKE_REACTION;
+  const menuItem = body.actions[0].value;
+  console.log(reaction);
+  // Connect to DB and update appropriate collection based on reaction
+  const result = await updateOne(
+    reaction === LIKE_REACTION ? "weekly_meals" : "disliked_meals",
+    reaction === LIKE_REACTION ? { week: currentWeek, year: currentYear } : {},
+    {
+      $addToSet: { meals: menuItem },
+      $setOnInsert: { created_at: new Date() },
+    },
+  );
 
-    // Update the message to remove the buttons after a reaction
-    await client.chat.update({
-      channel: channel,
-      ts: messageTs,
-      blocks: [
-        {
-          type: "section",
-          text: {
-            type: "plain_text",
-            text: value,
-          },
-        },
-      ],
-    });
+  logger.info(
+    `Added ${menuItem} to ${reaction === LIKE_REACTION ? "weekly meals" : "disliked meals"} ${JSON.stringify(result)}`,
+  );
 
-    await slack.client.reactions.add({
-      channel: channel,
-      name: reaction,
-      timestamp: messageTs,
-    });
-  } catch (error) {
-    logger.error("Error adding reaction:", error);
-  }
+  // Remove button from message on selection
+  await slack.client.chat.update({
+    channel: channel,
+    ts: messageTs,
+    blocks: [{ type: "section", text: { type: "plain_text", text: menuItem } }],
+  });
+
+  // Add reaction to message
+  await slack.client.reactions.add({
+    channel: channel,
+    name: reaction,
+    timestamp: messageTs,
+  });
 });
 
 function createMenuElements(meals) {
@@ -127,6 +135,6 @@ async function generateMenu() {
 }
 
 export default () => {
-  generateMenu();
+  // generateMenu();
   cron.schedule(MENU_INTERVAL, generateMenu);
 };

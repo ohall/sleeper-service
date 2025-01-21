@@ -9,10 +9,12 @@ import { startSlack, stopSlack } from "./src/slackbot.js";
 import { gpt35Turbo } from "./src/openai.js";
 import menu from "./src/menu.js";
 import scheduleEducationalContent from "./src/school.js";
+import { connect, disconnect } from "./src/services/db.js";
 config();
 const app = express();
 app.use(express.json());
 startSlack();
+connect();
 menu();
 scheduleEducationalContent();
 
@@ -37,6 +39,7 @@ app.listen(port, () => {
 process.on("SIGTERM", async () => {
   try {
     await stopSlack();
+    await disconnect();
     process.exit(0);
   } catch (error) {
     logger.error("Error stopping app:", error);
