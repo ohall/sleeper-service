@@ -5,6 +5,7 @@ import { config } from "dotenv";
 import { gpt35Turbo } from "./openai.js";
 import prompts from "../configs/prompts.js";
 import { generateMenu, handleMenuReaction } from "./menu.js";
+import { appConfigs } from "../configs/appConfigs.js";
 import messageRouter from "./messageRouter.js";
 config();
 
