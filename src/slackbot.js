@@ -32,11 +32,8 @@ slack.message(/.*/, async ({ message, say }) => {
 
 slack.event("app_mention", async ({ event, say }) => {
   logger.info("Received mention event:", event);
-  console.log(`event.text: ${event.text}, channel_name: ${event.channel_name}`);
-  if (
-    event.text.includes("menu") &&
-    event.channel_name === appConfigs.weeklyMenuChannel
-  ) {
+  console.log(`event ${JSON.stringify(event, null, 2)}`);
+  if (event.text.includes("menu")) {
     await generateMenu();
   } else {
     const system = prompts.mention_message.system;
