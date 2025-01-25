@@ -17,8 +17,7 @@ const systemPrompt = prompts.meal_planning.system;
 const DISLIKE_REACTION = "thumbsdown";
 const LIKE_REACTION = "thumbsup";
 
-const handleMenuReaction = async ({ ack, body }) => {
-  ack();
+const handleMenuReaction = async (body) => {
   // Get the original message timestamp from the button action
   const messageTs = body.message.ts;
   const channel = body.channel.id;

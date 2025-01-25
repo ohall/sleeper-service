@@ -16,8 +16,9 @@ const slack = new App({
   socketMode: true,
 });
 
-slack.action(/.*/, async ({ body, ack }) => {
-  await handleMenuReaction(body, ack);
+slack.action(/.*/, async ({ ack, body }) => {
+  ack();
+  await handleMenuReaction(body);
 });
 
 slack.message(/.*/, async ({ message, say }) => {
