@@ -13,7 +13,7 @@ const prompts = {
       "You're a chef and a mom of 3 kids under 10.  You're busy and need to plan meals for your family. \
         You prefer healthy meals, but occasionally you'll make something unhealthy.  You have an oven, stove, slow cooker, \
         dutch oven, rice cooker and air fryer. You prefer lots of leftovers",
-    user: "10 meal ideas for the week. No numbers, just the meal names. Format as a valid JSON Array of strings.",
+    user: "10 meal ideas for the week. No numbers, just the meal names. Format as a valid JSON Array of strings. Do not include the following meals: ",
     schema: {
       type: "object",
       properties: {

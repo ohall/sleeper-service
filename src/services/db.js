@@ -1,17 +1,19 @@
 import { MongoClient, ObjectId } from "mongodb";
 import logger from "../logger.js";
-
+import { appConfigs } from "../../configs/appConfigs.js";
+import { config } from "dotenv";
+config();
 const connectionString = process.env.MONGO_CONNECTION_STRING;
 let client = null;
 let db = null;
 
 async function connect() {
   try {
-    if (!client) {
+    if (!db) {
       client = new MongoClient(connectionString);
       await client.connect();
-      db = client.db();
-      logger.info("Connected to MongoDB");
+      db = client.db(appConfigs.dbName);
+      logger.info(`Connected to MongoDB: ${appConfigs.dbName}`);
     }
     return db;
   } catch (error) {
@@ -59,21 +61,14 @@ async function createMany(collection, documents) {
 async function findOne(collection, query) {
   try {
     const db = await connect();
+    console.log(
+      `findOne collection: ${collection}, query: ${JSON.stringify(query)}, db: ${db}`,
+    );
     const result = await db.collection(collection).findOne(query);
+    console.log(`findOne result: ${result}`);
     return result;
   } catch (error) {
     logger.error("MongoDB findOne error:", error);
-    throw error;
-  }
-}
-
-async function find(collection, query, options = {}) {
-  try {
-    const db = await connect();
-    const cursor = db.collection(collection).find(query, options);
-    return await cursor.toArray();
-  } catch (error) {
-    logger.error("MongoDB find error:", error);
     throw error;
   }
 }
@@ -137,7 +132,6 @@ export {
   create,
   createMany,
   findOne,
-  find,
   updateOne,
   updateMany,
   deleteOne,

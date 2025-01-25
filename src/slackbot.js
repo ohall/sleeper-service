@@ -4,6 +4,7 @@ const { App } = pkg;
 import { config } from "dotenv";
 import { gpt35Turbo } from "./openai.js";
 import prompts from "../configs/prompts.js";
+import { generateMenu, handleMenuReaction } from "./menu.js";
 import messageRouter from "./messageRouter.js";
 config();
 
@@ -14,19 +15,33 @@ const slack = new App({
   socketMode: true,
 });
 
+slack.action(/.*/, async ({ body, ack }) => {
+  await handleMenuReaction(body, ack);
+});
+
 slack.message(/.*/, async ({ message, say }) => {
   logger.info("Received message event:", message);
+  if (message.text.includes("menu")) {
+    await generateMenu();
+  }
   await say(await gpt35Turbo(prompts.user_message.system, message.text));
   // await say(await messageRouter(prompts.routing.system, message.text));
 });
 
 slack.event("app_mention", async ({ event, say }) => {
   logger.info("Received mention event:", event);
-  const system = prompts.mention_message.system;
-  await say({
-    text: await gpt35Turbo(system, event.text),
-    thread_ts: event.ts,
-  });
+  if (
+    event.text.includes("menu") &&
+    event.channel_name === appConfigs.weeklyMenuChannel
+  ) {
+    await generateMenu();
+  } else {
+    const system = prompts.mention_message.system;
+    await say({
+      text: await gpt35Turbo(system, event.text),
+      thread_ts: event.ts,
+    });
+  }
 });
 
 async function startSlack() {

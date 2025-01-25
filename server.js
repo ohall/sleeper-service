@@ -1,21 +1,20 @@
 // server.js
 import express from "express";
 const port = process.env.PORT || 3000;
+import { stopSlack } from "./src/slackbot.js";
 import { config } from "dotenv";
 import pkg from "express-oauth2-jwt-bearer";
 const { auth } = pkg;
 import logger from "./src/logger.js";
-import { startSlack, stopSlack } from "./src/slackbot.js";
 import { gpt35Turbo } from "./src/openai.js";
-import menu from "./src/menu.js";
+import { scheduleMenu } from "./src/menu.js";
 import scheduleEducationalContent from "./src/school.js";
 import { connect, disconnect } from "./src/services/db.js";
 config();
 const app = express();
 app.use(express.json());
-startSlack();
 connect();
-menu();
+scheduleMenu();
 scheduleEducationalContent();
 
 const jwtCheck = auth({
