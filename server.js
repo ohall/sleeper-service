@@ -1,7 +1,7 @@
 // server.js
 import express from "express";
 const port = process.env.PORT || 3000;
-import { stopSlack } from "./src/slackbot.js";
+import { stopSlack, startSlack } from "./src/slackbot.js";
 import { config } from "dotenv";
 import pkg from "express-oauth2-jwt-bearer";
 const { auth } = pkg;
@@ -15,6 +15,7 @@ const app = express();
 app.use(express.json());
 connect();
 scheduleMenu();
+startSlack();
 scheduleEducationalContent();
 
 const jwtCheck = auth({
