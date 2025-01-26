@@ -44,6 +44,29 @@ slack.event("app_mention", async ({ event, say }) => {
   }
 });
 
+async function writeToCanvas(title, text, channelId) {
+  try {
+    const result = await slack.client.canvas.create({
+      channel_id: channelId,
+      title: title,
+    });
+
+    await slack.client.canvas.addBlock({
+      channel_id: channelId,
+      canvas_id: result.canvas.id,
+      block_id: "test_block",
+      type: "rich_text",
+      text: text,
+    });
+
+    logger.info("Successfully wrote to canvas");
+    return result;
+  } catch (error) {
+    logger.error("Error writing to canvas:", error);
+    throw error;
+  }
+}
+
 async function startSlack() {
   await slack.start(process.env.PORT + 1 || 3001);
   logger.info(`⚡️ Slack bot is running on port ${process.env.PORT + 1}`);
@@ -54,4 +77,4 @@ function stopSlack() {
   logger.info("Slack bot stopped");
 }
 
-export { startSlack, stopSlack, slack };
+export { startSlack, stopSlack, slack, writeToCanvas };

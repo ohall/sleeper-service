@@ -3,7 +3,7 @@ import { gpt35TurboStructured } from "./openai.js";
 import { config } from "dotenv";
 import logger from "./logger.js";
 import prompts from "../configs/prompts.js";
-import { slack } from "./slackbot.js";
+import { slack, writeToCanvas } from "./slackbot.js";
 import { currentWeek, currentYear } from "./utils.js";
 import { updateOne, findOne } from "./services/db.js";
 import { appConfigs } from "../configs/appConfigs.js";
@@ -55,49 +55,63 @@ const handleMenuReaction = async (body) => {
   });
 };
 
-function createMenuElements(meals) {
-  if (Array.isArray(meals)) {
-    meals.forEach(async (item) => {
-      await slack.client.chat.postMessage({
-        channel: appConfigs.weeklyMenuChannel,
-        text: "Weekly Menu",
-        dispatch_action: true,
-        blocks: [
-          {
-            type: "section",
-            text: {
-              type: "plain_text",
-              text: item,
-            },
-          },
-          {
-            type: "actions",
-            elements: [
-              {
-                type: "button",
-                text: {
-                  type: "plain_text",
-                  text: "👍",
-                },
-                style: "primary",
-                value: item,
-              },
-              {
-                type: "button",
-                text: {
-                  type: "plain_text",
-                  emoji: true,
-                  text: "👎",
-                },
-                style: "danger",
-                value: item,
-              },
-            ],
-          },
-        ],
-      });
-    });
+const createTextBlock = (text) => {
+  return {
+    type: "section",
+    text: {
+      type: "plain_text",
+      text: text,
+    },
+  };
+};
+
+const createButtonElement = (value, text) => {
+  return {
+    type: "button",
+    text: {
+      type: "plain_text",
+      text: text,
+    },
+    value: value,
+  };
+};
+
+async function createMenuElements(meals) {
+  if (!Array.isArray(meals)) {
+    return;
   }
+
+  await Promise.all(meals.map(async (item) => {
+    await slack.client.chat.postMessage({
+      channel: appConfigs.weeklyMenuChannel,
+      text: "Weekly Menu", 
+      dispatch_action: true,
+      blocks: [
+        createTextBlock(item),
+        {
+          type: "actions",
+          elements: [
+            createButtonElement("like_meal", "👍"),
+            createButtonElement("dislike_meal", "👎"),
+          ],
+        },
+      ],
+    });
+  }));
+
+  await slack.client.chat.postMessage({
+    channel: appConfigs.weeklyMenuChannel,
+    text: "Weekly Menu",
+    dispatch_action: true,
+    blocks: [
+      {
+        type: "actions",
+        elements: [
+          createButtonElement("record_recipes", "📝 Record Recipes & Ingredients"),
+        ],
+      },
+    ],
+  });
 }
 
 async function generateMenu() {
