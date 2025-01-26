@@ -17,13 +17,12 @@ const systemPrompt = prompts.meal_planning.system;
 const DISLIKE_REACTION = "thumbsdown";
 const LIKE_REACTION = "thumbsup";
 
-const handleMenuReaction = async (body) => {
-  // Get the original message timestamp from the button action
-  const messageTs = body.message.ts;
-  const channel = body.channel.id;
-  const reaction =
-    body.actions[0].text.text === ":+1:" ? LIKE_REACTION : DISLIKE_REACTION;
-  const menuItem = body.actions[0].value;
+const handleLikeDislikeReaction = async (
+  reaction,
+  menuItem,
+  channel,
+  messageTs,
+) => {
   // Connect to DB and update appropriate collection based on reaction
   const result = await updateOne(
     reaction === LIKE_REACTION
@@ -35,7 +34,6 @@ const handleMenuReaction = async (body) => {
       $setOnInsert: { created_at: new Date() },
     },
   );
-
   logger.info(
     `Added ${menuItem} to ${reaction === LIKE_REACTION ? appConfigs.weeklyMealsCollection : appConfigs.dislikedMealsCollection} ${JSON.stringify(result)}`,
   );
@@ -53,6 +51,48 @@ const handleMenuReaction = async (body) => {
     name: reaction,
     timestamp: messageTs,
   });
+};
+
+const handleRecordRecipes = async (channel, messageTs) => {
+  await slack.client.chat.update({
+    channel: channel,
+    ts: messageTs,
+    blocks: [
+      {
+        type: "section",
+        text: { type: "plain_text", text: "Recipes Recorded" },
+      },
+    ],
+  });
+};
+
+const handleMenuReaction = async (body) => {
+  // Get the original message timestamp from the button action
+  const messageTs = body.message.ts;
+  const channel = body.channel.id;
+  const actionId = body.actions[0].action_id;
+  const actionValue = body.actions[0].value;
+  switch (actionId) {
+    case "like_meal":
+      await handleLikeDislikeReaction(
+        LIKE_REACTION,
+        actionValue,
+        channel,
+        messageTs,
+      );
+      break;
+    case "dislike_meal":
+      await handleLikeDislikeReaction(
+        DISLIKE_REACTION,
+        actionValue,
+        channel,
+        messageTs,
+      );
+      break;
+    case "record_recipes":
+      await handleRecordRecipes(channel, messageTs);
+      break;
+  }
 };
 
 const createTextBlock = (text) => {
@@ -81,23 +121,25 @@ async function createMenuElements(meals) {
     return;
   }
 
-  await Promise.all(meals.map(async (item) => {
-    await slack.client.chat.postMessage({
-      channel: appConfigs.weeklyMenuChannel,
-      text: "Weekly Menu", 
-      dispatch_action: true,
-      blocks: [
-        createTextBlock(item),
-        {
-          type: "actions",
-          elements: [
-            createButtonElement("like_meal", "👍"),
-            createButtonElement("dislike_meal", "👎"),
-          ],
-        },
-      ],
-    });
-  }));
+  await Promise.all(
+    meals.map(async (item) => {
+      await slack.client.chat.postMessage({
+        channel: appConfigs.weeklyMenuChannel,
+        text: "Weekly Menu",
+        dispatch_action: true,
+        blocks: [
+          createTextBlock(item),
+          {
+            type: "actions",
+            elements: [
+              createButtonElement("like_meal", "👍"),
+              createButtonElement("dislike_meal", "👎"),
+            ],
+          },
+        ],
+      });
+    }),
+  );
 
   await slack.client.chat.postMessage({
     channel: appConfigs.weeklyMenuChannel,
@@ -107,7 +149,10 @@ async function createMenuElements(meals) {
       {
         type: "actions",
         elements: [
-          createButtonElement("record_recipes", "📝 Record Recipes & Ingredients"),
+          createButtonElement(
+            "record_recipes",
+            "📝 Record Recipes & Ingredients",
+          ),
         ],
       },
     ],
