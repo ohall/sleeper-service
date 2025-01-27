@@ -46,18 +46,48 @@ slack.event("app_mention", async ({ event, say }) => {
 
 async function writeToCanvas(title, text, channelId) {
   try {
-    const result = await slack.client.canvas.create({
+    //https://api.slack.com/methods/canvases.create
+    const result = await slack.client.canvases.create({
       channel_id: channelId,
       title: title,
     });
+    console.log(
+      `title: ${title}, channelId: ${channelId}, text: ${text}, result: ${JSON.stringify(result, null, 2)}`
+    );
 
-    await slack.client.canvas.addBlock({
-      channel_id: channelId,
-      canvas_id: result.canvas.id,
-      block_id: "test_block",
-      type: "rich_text",
-      text: text,
+    //https://api.slack.com/methods/canvases.access.set
+    await slack.client.canvases.access.set({
+      canvas_id: result.canvas_id,
+      access_level: "write",
+      channel_ids: [channelId],
     });
+
+    await slack.client.chat.postMessage({
+      channel: channelId,
+      text: `https://${appConfigs.slackWorkspace}.slack.com/docs/${appConfigs.slackTeamId}/${result.canvas_id}`,
+    });
+
+    //https://api.slack.com/methods/canvases.sections.lookup
+    // const sections = await slack.client.canvases.sections.lookup({
+    //   canvas_id: result.canvas_id,
+    //   criteria: { section_types: ["any_header"] },
+    // });
+
+  
+    //https://api.slack.com/methods/canvases.edit
+    // await slack.client.canvases.edit({
+    //   canvas_id: result.canvas_id,
+    //   changes: [
+    //     {
+    //       operation: "insert_after",
+    //       section_id: sections[0].id,
+    //       document_content: {
+    //         type: "markdown",
+    //         markdown: text,
+    //       },
+    //     },
+    //   ],
+    // });
 
     logger.info("Successfully wrote to canvas");
     return result;

@@ -54,6 +54,9 @@ const handleLikeDislikeReaction = async (
 };
 
 const handleRecordRecipes = async (channel, messageTs) => {
+  logger.info("Recording recipes...");
+  await writeToCanvas("Recipes Recorded", "Recipes Recorded", channel);
+
   await slack.client.chat.update({
     channel: channel,
     ts: messageTs,
@@ -70,9 +73,8 @@ const handleMenuReaction = async (body) => {
   // Get the original message timestamp from the button action
   const messageTs = body.message.ts;
   const channel = body.channel.id;
-  const actionId = body.actions[0].action_id;
   const actionValue = body.actions[0].value;
-  switch (actionId) {
+  switch (actionValue) {
     case "like_meal":
       await handleLikeDislikeReaction(
         LIKE_REACTION,

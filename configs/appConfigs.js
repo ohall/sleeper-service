@@ -3,4 +3,6 @@ export const appConfigs = {
   dislikedMealsCollection: "disliked_meals",
   weeklyMealsCollection: "weekly_meals",
   weeklyMenuChannel: "bot-test",
+  slackWorkspace: "riverdogworkspace",
+  slackTeamId: "T0880LG4KPS",
 };

@@ -41,3 +41,7 @@ npm run get-token
 ## Heroku Setup
 
 [Heroku Setup](./docs/HEROKU.md)
+
+## Slackbot Setup
+
+[Slackbot Setup](./docs/SLACKBOT.md)
