@@ -7,6 +7,7 @@ import { slack, writeToCanvas } from "./slackbot.js";
 import { currentWeek, currentYear } from "./utils.js";
 import { updateOne, findOne } from "./services/db.js";
 import { appConfigs } from "../configs/appConfigs.js";
+import { gpt35Turbo } from "./openai.js";
 config();
 
 // Schedule for Friday at 2pm
@@ -48,14 +49,52 @@ const handleLikeDislikeReaction = async (
   // Add reaction to message
   await slack.client.reactions.add({
     channel: channel,
-    name: reaction,
+    name: menuItem,
     timestamp: messageTs,
   });
 };
 
 const handleRecordRecipes = async (channel, messageTs) => {
   logger.info("Recording recipes...");
-  await writeToCanvas("Recipes Recorded", "Recipes Recorded", channel);
+  // Get this week's meals from MongoDB
+  const weeklyMeals = await findOne(appConfigs.weeklyMealsCollection, {
+    week: currentWeek,
+    year: currentYear,
+  });
+
+  if (!weeklyMeals || !weeklyMeals.meals || weeklyMeals.meals.length === 0) {
+    logger.info("No meals found for this week");
+    return;
+  }
+
+  // Get ingredients and recipes from AI
+  const prompt = `For these meals: ${weeklyMeals.meals.join(", ")}
+
+Please provide:
+1. A consolidated shopping list of all ingredients needed
+2. The full recipe for each meal
+
+Format as markdown with:
+- "Shopping List" as an h1 header
+- Each meal name as an h2 header followed by its recipe`;
+
+  const response = await gpt35Turbo(
+    "You are a helpful chef and meal planner.",
+    prompt,
+  );
+
+  // Write to canvas
+  const canvasContent = {
+    type: "markdown",
+    markdown: response,
+  };
+
+  await writeToCanvas(
+    `Meal Plan - Week of ${new Date().toLocaleDateString()}`,
+    canvasContent,
+    channel,
+  );
+  // await writeToCanvas("Recipes Recorded", "Recipes Recorded", channel);
 
   await slack.client.chat.update({
     channel: channel,

@@ -52,7 +52,7 @@ async function writeToCanvas(title, text, channelId) {
       title: title,
     });
     console.log(
-      `title: ${title}, channelId: ${channelId}, text: ${text}, result: ${JSON.stringify(result, null, 2)}`
+      `title: ${title}, channelId: ${channelId}, text: ${text}, result: ${JSON.stringify(result, null, 2)}`,
     );
 
     //https://api.slack.com/methods/canvases.access.set
@@ -73,7 +73,6 @@ async function writeToCanvas(title, text, channelId) {
     //   criteria: { section_types: ["any_header"] },
     // });
 
-  
     //https://api.slack.com/methods/canvases.edit
     // await slack.client.canvases.edit({
     //   canvas_id: result.canvas_id,
