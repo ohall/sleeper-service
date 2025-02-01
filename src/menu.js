@@ -87,8 +87,6 @@ Format as markdown with:
     prompt,
   );
 
-  console.log(`response: ${JSON.stringify(response, null, 2)}`);
-
   await writeToCanvas(
     `Meal Plan - Week of ${new Date().toLocaleDateString()}`,
     response,
@@ -203,7 +201,7 @@ async function createMenuElements(meals) {
 async function generateMenu() {
   try {
     logger.info("Generating weekly menu...");
-    
+
     const dislikedMeals = await findOne(appConfigs.dislikedMealsCollection, {
       meals: 1,
     });
@@ -217,15 +215,21 @@ async function generateMenu() {
       { meals: 1, _id: 0 },
     );
 
-    const dislikedMealsString = dislikedMeals?.meals && Array.isArray(dislikedMeals.meals) && dislikedMeals.meals.length > 0
-      ? dislikedMeals.meals.join(", ")
-      : "";
+    const dislikedMealsString =
+      dislikedMeals?.meals &&
+      Array.isArray(dislikedMeals.meals) &&
+      dislikedMeals.meals.length > 0
+        ? dislikedMeals.meals.join(", ")
+        : "";
 
-    const lastWeekMealsString = lastWeekMeals?.meals && Array.isArray(lastWeekMeals.meals) && lastWeekMeals.meals.length > 0
-      ? lastWeekMeals.meals.join(", ")
-      : "";
+    const lastWeekMealsString =
+      lastWeekMeals?.meals &&
+      Array.isArray(lastWeekMeals.meals) &&
+      lastWeekMeals.meals.length > 0
+        ? lastWeekMeals.meals.join(", ")
+        : "";
 
-      const weeklyMenu = await gpt35TurboStructured(
+    const weeklyMenu = await gpt35TurboStructured(
       systemPrompt,
       prompts.meal_planning.user + dislikedMealsString + lastWeekMealsString,
       prompts.meal_planning.schema,
