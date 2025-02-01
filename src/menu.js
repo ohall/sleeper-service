@@ -15,8 +15,7 @@ const MENU_INTERVAL = "0 14 * * 5";
 // const MENU_INTERVAL = "* * * * *";
 const systemPrompt = prompts.meal_planning.system;
 
-const DISLIKE_REACTION = "thumbsdown";
-const LIKE_REACTION = "thumbsup";
+const LIKE_REACTION = "like_meal";
 
 const handleLikeDislikeReaction = async ({
   reaction,
