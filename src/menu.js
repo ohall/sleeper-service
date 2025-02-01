@@ -71,11 +71,11 @@ const handleRecordRecipes = async (channel, messageTs) => {
   const prompt = `For these meals: ${weeklyMeals.meals.join(", ")}
 
 Please provide:
-1. A consolidated shopping list of all ingredients needed
+1. A consolidated shopping list of all ingredients needed for all meals together
 2. The full recipe for each meal
 
 Format as markdown with:
-- "Shopping List" as an h1 header
+- "Shopping List" as an h1 header with a bulleted list of ingredients for all meals below
 - Each meal name as an h2 header followed by its recipe`;
 
   const response = await gpt35Turbo(
