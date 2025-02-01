@@ -49,7 +49,7 @@ async function writeToCanvas(title, text, channelId) {
     console.log(`text: ${text}`);
     const documentContent = {
       type: "markdown",
-      markdown: "documment text",
+      markdown: text,
     };
 
     //https://api.slack.com/methods/canvases.create
