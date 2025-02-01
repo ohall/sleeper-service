@@ -83,16 +83,10 @@ Format as markdown with:
     prompt,
   );
 
-  console.log(`response: ${JSON.stringify(response, null, 2)}`);
-  // Write to canvas
-  const canvasContent = {
-    type: "markdown",
-    markdown: response,
-  };
 
   await writeToCanvas(
     `Meal Plan - Week of ${new Date().toLocaleDateString()}`,
-    canvasContent,
+    response,
     channel,
   );
   // await writeToCanvas("Recipes Recorded", "Recipes Recorded", channel);
