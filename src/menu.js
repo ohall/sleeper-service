@@ -201,9 +201,11 @@ async function createMenuElements(meals) {
 async function generateMenu() {
   try {
     logger.info("Generating weekly menu...");
+    
     const dislikedMeals = await findOne(appConfigs.dislikedMealsCollection, {
       meals: 1,
     });
+
     const lastWeekMeals = await findOne(
       appConfigs.weeklyMealsCollection,
       {
@@ -212,15 +214,16 @@ async function generateMenu() {
       },
       { meals: 1, _id: 0 },
     );
-    const dislikedMealsString = Array.isArray(dislikedMeals)
+
+    const dislikedMealsString = Array.isArray(dislikedMeals.meals)
       ? dislikedMeals.meals.join(", ")
       : "";
-    const lastWeekMealsString = Array.isArray(lastWeekMeals)
+
+    const lastWeekMealsString = Array.isArray(lastWeekMeals.meals)
       ? lastWeekMeals.meals.join(", ")
-      : lastWeekMeals.meals;
-    console.log(dislikedMealsString);
-    console.log(lastWeekMealsString);
-    const weeklyMenu = await gpt35TurboStructured(
+      : "";
+
+      const weeklyMenu = await gpt35TurboStructured(
       systemPrompt,
       prompts.meal_planning.user + dislikedMealsString + lastWeekMealsString,
       prompts.meal_planning.schema,
