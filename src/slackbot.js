@@ -75,27 +75,6 @@ async function writeToCanvas(title, text, channelId) {
       text: `https://${appConfigs.slackWorkspace}.slack.com/docs/${appConfigs.slackTeamId}/${result.canvas_id}`,
     });
 
-    // https://api.slack.com/methods/canvases.sections.lookup
-    // const sections = await slack.client.canvases.sections.lookup({
-    //   canvas_id: result.canvas_id,
-    //   criteria: { section_types: ["any_header"] },
-    // });
-
-    //https://api.slack.com/methods/canvases.edit
-    // await slack.client.canvases.edit({
-    //   canvas_id: result.canvas_id,
-    //   changes: [
-    //     {
-    //       operation: "insert_after",
-    //       section_id: sections[0].id,
-    //       document_content: {
-    //         type: "markdown",
-    //         markdown: text,
-    //       },
-    //     },
-    //   ],
-    // });
-
     logger.info("Successfully wrote to canvas");
     return result;
   } catch (error) {

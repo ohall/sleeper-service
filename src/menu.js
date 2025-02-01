@@ -24,6 +24,9 @@ const handleLikeDislikeReaction = async (
   channel,
   messageTs,
 ) => {
+  console.log(
+    `reaction: ${reaction}, menuItem: ${menuItem}, channel: ${channel}, messageTs: ${messageTs}`,
+  );
   // Connect to DB and update appropriate collection based on reaction
   const result = await updateOne(
     reaction === LIKE_REACTION
@@ -35,6 +38,7 @@ const handleLikeDislikeReaction = async (
       $setOnInsert: { created_at: new Date() },
     },
   );
+  console.log(`result: ${JSON.stringify(result, null, 2)}`);
   logger.info(
     `Added ${menuItem} to ${reaction === LIKE_REACTION ? appConfigs.weeklyMealsCollection : appConfigs.dislikedMealsCollection} ${JSON.stringify(result)}`,
   );
@@ -108,22 +112,17 @@ Format as markdown with:
 
 const handleMenuReaction = async (body) => {
   // Get the original message timestamp from the button action
+  console.log(`body: ${JSON.stringify(body, null, 2)}`);
   const messageTs = body.message.ts;
   const channel = body.channel.id;
+  const menuItem = body.message.blocks[0].text.text;
   const actionValue = body.actions[0].value;
   switch (actionValue) {
     case "like_meal":
-      await handleLikeDislikeReaction(
-        LIKE_REACTION,
-        actionValue,
-        channel,
-        messageTs,
-      );
-      break;
     case "dislike_meal":
       await handleLikeDislikeReaction(
-        DISLIKE_REACTION,
         actionValue,
+        menuItem,
         channel,
         messageTs,
       );
