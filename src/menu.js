@@ -79,7 +79,7 @@ Format as markdown with:
 - Each meal name as an h2 header followed by its recipe`;
 
   const response = await gpt35Turbo(
-    "You are a helpful chef and meal planner.",
+    "You are an assistant that can help me plan my meals and shopping list.",
     prompt,
   );
 
