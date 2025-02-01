@@ -83,6 +83,7 @@ Format as markdown with:
     prompt,
   );
 
+  console.log(`response: ${JSON.stringify(response, null, 2)}`);
   // Write to canvas
   const canvasContent = {
     type: "markdown",

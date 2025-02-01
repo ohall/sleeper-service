@@ -46,11 +46,19 @@ slack.event("app_mention", async ({ event, say }) => {
 
 async function writeToCanvas(title, text, channelId) {
   try {
+    console.log(`text: ${text}`);
+    const documentContent = {
+      type: "markdown",
+      markdown: "documment text",
+    };
+
     //https://api.slack.com/methods/canvases.create
     const result = await slack.client.canvases.create({
       channel_id: channelId,
       title: title,
+      document_content: documentContent,
     });
+
     console.log(
       `title: ${title}, channelId: ${channelId}, text: ${text}, result: ${JSON.stringify(result, null, 2)}`,
     );
@@ -67,7 +75,7 @@ async function writeToCanvas(title, text, channelId) {
       text: `https://${appConfigs.slackWorkspace}.slack.com/docs/${appConfigs.slackTeamId}/${result.canvas_id}`,
     });
 
-    //https://api.slack.com/methods/canvases.sections.lookup
+    // https://api.slack.com/methods/canvases.sections.lookup
     // const sections = await slack.client.canvases.sections.lookup({
     //   canvas_id: result.canvas_id,
     //   criteria: { section_types: ["any_header"] },
