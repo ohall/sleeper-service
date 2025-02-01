@@ -83,6 +83,7 @@ Format as markdown with:
     prompt,
   );
 
+  console.log(`response: ${JSON.stringify(response, null, 2)}`);
 
   await writeToCanvas(
     `Meal Plan - Week of ${new Date().toLocaleDateString()}`,
