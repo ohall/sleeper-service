@@ -215,11 +215,11 @@ async function generateMenu() {
       { meals: 1, _id: 0 },
     );
 
-    const dislikedMealsString = Array.isArray(dislikedMeals.meals)
+    const dislikedMealsString = dislikedMeals?.meals && Array.isArray(dislikedMeals.meals) && dislikedMeals.meals.length > 0
       ? dislikedMeals.meals.join(", ")
       : "";
 
-    const lastWeekMealsString = Array.isArray(lastWeekMeals.meals)
+    const lastWeekMealsString = lastWeekMeals?.meals && Array.isArray(lastWeekMeals.meals) && lastWeekMeals.meals.length > 0
       ? lastWeekMeals.meals.join(", ")
       : "";
 
