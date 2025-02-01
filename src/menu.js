@@ -68,7 +68,9 @@ const handleRecordRecipes = async (channel, messageTs) => {
   }
 
   // Get ingredients and recipes from AI
-  const prompt = `For these meals: ${weeklyMeals.meals.join(", ")}
+  const prompt = `For these meals: ${
+    weeklyMeals ? weeklyMeals.meals.join(", ") : ""
+  }
 
 Please provide:
 1. A consolidated shopping list of all ingredients needed for all meals together
