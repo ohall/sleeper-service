@@ -38,7 +38,7 @@ const handleLikeDislikeReaction = async (
       $setOnInsert: { created_at: new Date() },
     },
   );
-  console.log(`result: ${JSON.stringify(result, null, 2)}`);
+  
   logger.info(
     `Added ${menuItem} to ${reaction === LIKE_REACTION ? appConfigs.weeklyMealsCollection : appConfigs.dislikedMealsCollection} ${JSON.stringify(result)}`,
   );
@@ -117,6 +117,7 @@ const handleMenuReaction = async (body) => {
   const channel = body.channel.id;
   const menuItem = body.message.blocks[0].text.text;
   const actionValue = body.actions[0].value;
+  console.log(`actionValue: ${actionValue}`);
   switch (actionValue) {
     case "like_meal":
     case "dislike_meal":

@@ -32,7 +32,6 @@ slack.message(/.*/, async ({ message, say }) => {
 
 slack.event("app_mention", async ({ event, say }) => {
   logger.info("Received mention event:", event);
-  console.log(`event ${JSON.stringify(event, null, 2)}`);
   if (event.text.includes("menu")) {
     await generateMenu();
   } else {
