@@ -93,18 +93,6 @@ const handleRecordRecipes = async (channel, messageTs) => {
     response,
     channel,
   );
-  // await writeToCanvas("Recipes Recorded", "Recipes Recorded", channel);
-
-  await slack.client.chat.update({
-    channel: channel,
-    ts: messageTs,
-    blocks: [
-      {
-        type: "section",
-        text: { type: "plain_text", text: "Recipes Recorded" },
-      },
-    ],
-  });
 
   // Remove loading indicator
   await slack.client.reactions.remove({
