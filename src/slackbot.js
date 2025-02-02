@@ -18,7 +18,11 @@ const slack = new App({
 
 slack.action(/.*/, async ({ ack, body }) => {
   ack();
-  await handleMenuReaction(body);
+  const messageTs = body?.message?.ts;
+  const channel = body?.channel?.id;
+  const menuItem = body?.message?.blocks?.[0]?.text?.text;
+  const action = body?.actions?.[0]?.value;
+  await handleMenuReaction({ messageTs, channel, menuItem, action });
 });
 
 slack.message(/.*/, async ({ message, say }) => {

@@ -102,18 +102,8 @@ const handleRecordRecipes = async (channel, messageTs) => {
   });
 };
 
-const handleMenuReaction = async (body) => {
-  // Get the original message timestamp from the button action
-  const messageTs = body?.message?.ts;
-  const channel = body?.channel?.id;
-  const menuItem = body?.message?.blocks?.[0]?.text?.text;
-  const action = body?.actions?.[0]?.value;
-
-  if (!messageTs || !channel || !menuItem || !action) {
-    logger.error('Missing required fields in menu reaction payload', { body });
-    return;
-  }
-
+const handleMenuReaction = async ({ messageTs, channel, menuItem, action }) => {
+  logger.info(`Handling menu reaction: ${action} for ${menuItem} in channel ${channel} at messageTs ${messageTs}`);
   switch (action) {
     case "like_meal":
     case "dislike_meal":
