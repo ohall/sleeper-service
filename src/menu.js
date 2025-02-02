@@ -60,13 +60,14 @@ const handleLikeDislikeReaction = async ({
 const handleRecordRecipes = async (channel, messageTs) => {
   logger.info("Recording recipes...");
 
-  // Update message to show we're creating the shopping list
-  await slack.client.chat.update({
+  // Add loading indicator
+  await slack.client.reactions.add({
     channel: channel,
-    ts: messageTs,
-    text: "Creating Shopping List"
+    name: "hourglass_flowing_sand",
+    timestamp: messageTs
   });
-  
+
+
   // Get this week's meals from MongoDB
   const weeklyMeals = await findOne(appConfigs.weeklyMealsCollection, {
     week: currentWeek,
@@ -79,19 +80,8 @@ const handleRecordRecipes = async (channel, messageTs) => {
   }
 
   // Get ingredients and recipes from AI
-  const prompt = `For these meals: ${
-    weeklyMeals ? weeklyMeals.meals.join(", ") : ""
-  }
-
-Please provide:
-1. A consolidated shopping list of all ingredients needed for all meals together.  
-All the ingredients for all the meals should be listed here. Non of the ingredients 
-should be listed with the recipe for a specific meal.
-2. The full recipe for each meal
-
-Format as markdown with:
-- "Shopping List" as an h1 header with a bulleted list of all ingredients for all meals below combined into a single list
-- Each meal name as an h2 header followed by its recipe`;
+  const prompt = `For these meals: ${weeklyMeals ? weeklyMeals.meals.join(", ") : ""} 
+  ${prompts.shopping_list.user}`;
 
   const response = await gpt35Turbo(
     "You are an assistant that can help me plan my meals and shopping list.",
@@ -114,6 +104,13 @@ Format as markdown with:
         text: { type: "plain_text", text: "Recipes Recorded" },
       },
     ],
+  });
+
+  // Remove loading indicator
+  await slack.client.reactions.remove({
+    channel: channel,
+    name: "hourglass_flowing_sand",
+    timestamp: messageTs
   });
 };
 
@@ -193,12 +190,7 @@ async function createMenuElements(meals) {
     blocks: [
       {
         type: "actions",
-        elements: [
-          createButtonElement(
-            "record_recipes",
-            "📝 Shopping List",
-          ),
-        ],
+        elements: [createButtonElement("record_recipes", "📝 Shopping List")],
       },
     ],
   });

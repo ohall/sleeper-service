@@ -26,6 +26,21 @@ const prompts = {
       },
     },
   },
+  shopping_list: {
+    system:
+      "You are an assistant that can help me plan my meals and shopping list.",
+    user: `
+    Please provide:
+    1. A consolidated shopping list of all ingredients needed for all meals together.  
+    All the ingredients for all the meals should be listed here. Non of the ingredients 
+    should be listed with the recipe for a specific meal.
+    
+    2. The full recipe for each meal
+
+    Format as markdown with:
+    - "Shopping List" as an h1 header with a bulleted list of all ingredients for all meals below combined into a single list
+    - Each meal name as an h2 header followed by its recipe`,
+  },
   educational_content: {
     system:
       "You are an educational content curator for children. Provide engaging, safe, and age-appropriate educational resources.",
