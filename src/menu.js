@@ -64,12 +64,7 @@ const handleRecordRecipes = async (channel, messageTs) => {
   await slack.client.chat.update({
     channel: channel,
     ts: messageTs,
-    blocks: [
-      {
-        type: "section",
-        text: { type: "plain_text", text: "Creating Shopping List" },
-      },
-    ],
+    blocks: [{ type: "section", text: { type: "plain_text", text: "Creating Shopping List" } }],
   });
   
   // Get this week's meals from MongoDB
