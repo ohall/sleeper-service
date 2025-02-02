@@ -59,6 +59,19 @@ const handleLikeDislikeReaction = async ({
 
 const handleRecordRecipes = async (channel, messageTs) => {
   logger.info("Recording recipes...");
+
+  // Update message to show we're creating the shopping list
+  await slack.client.chat.update({
+    channel: channel,
+    ts: messageTs,
+    blocks: [
+      {
+        type: "section",
+        text: { type: "plain_text", text: "Creating Shopping List" },
+      },
+    ],
+  });
+  
   // Get this week's meals from MongoDB
   const weeklyMeals = await findOne(appConfigs.weeklyMealsCollection, {
     week: currentWeek,
@@ -188,7 +201,7 @@ async function createMenuElements(meals) {
         elements: [
           createButtonElement(
             "record_recipes",
-            "📝 Record Recipes & Ingredients",
+            "📝 Shopping List",
           ),
         ],
       },
