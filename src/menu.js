@@ -84,7 +84,7 @@ const handleRecordRecipes = async (channel, messageTs) => {
   ${prompts.shopping_list.user}`;
 
   const response = await gpt35Turbo(
-    "You are an assistant that can help me plan my meals and shopping list.",
+    prompts.shopping_list.system,
     prompt,
   );
 
