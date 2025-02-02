@@ -52,7 +52,7 @@ const handleLikeDislikeReaction = async ({
   // Add reaction to message
   await slack.client.reactions.add({
     channel: channel,
-    name: menuItem,
+    name: reaction === LIKE_REACTION ? "thumbsup" : "thumbsdown",
     timestamp: messageTs,
   });
 };
