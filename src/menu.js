@@ -60,6 +60,21 @@ const handleLikeDislikeReaction = async ({
 const handleRecordRecipes = async (channel, messageTs) => {
   logger.info("Recording recipes...");
 
+  // Update message to show loading state
+  await slack.client.chat.update({
+    channel: channel,
+    ts: messageTs,
+    blocks: [
+      {
+        type: "section",
+        text: {
+          type: "plain_text", 
+          text: "Creating Shopping List 🛒 📝 ✨"
+        }
+      }
+    ]
+  });
+  
   // Add loading indicator
   await slack.client.reactions.add({
     channel: channel,
