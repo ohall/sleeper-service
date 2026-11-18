@@ -60,6 +60,22 @@ const handleLikeDislikeReaction = async ({
 const handleRecordRecipes = async (channel, messageTs) => {
   logger.info("Recording recipes...");
 
+  // Look up this week's meals before touching the message
+  const weeklyMeals = await findOne(appConfigs.weeklyMealsCollection, {
+    week: currentWeek,
+    year: currentYear,
+  });
+
+  if (!weeklyMeals || !weeklyMeals.meals || weeklyMeals.meals.length === 0) {
+    logger.info("No meals found for this week");
+    await slack.client.chat.postMessage({
+      channel: channel,
+      thread_ts: messageTs,
+      text: "No meals liked this week yet. Give some meals a 👍, then try Shopping List again.",
+    });
+    return;
+  }
+
   // Update message to show loading state
   await slack.client.chat.update({
     channel: channel,
@@ -68,57 +84,57 @@ const handleRecordRecipes = async (channel, messageTs) => {
       {
         type: "section",
         text: {
-          type: "plain_text", 
-          text: "Creating Shopping List 🛒 📝 ✨"
-        }
-      }
-    ]
+          type: "plain_text",
+          text: "Creating Shopping List 🛒 📝 ✨",
+        },
+      },
+    ],
   });
-  
+
   // Add loading indicator
   await slack.client.reactions.add({
     channel: channel,
     name: "hourglass_flowing_sand",
-    timestamp: messageTs
+    timestamp: messageTs,
   });
 
-
-  // Get this week's meals from MongoDB
-  const weeklyMeals = await findOne(appConfigs.weeklyMealsCollection, {
-    week: currentWeek,
-    year: currentYear,
-  });
-
-  if (!weeklyMeals || !weeklyMeals.meals || weeklyMeals.meals.length === 0) {
-    logger.info("No meals found for this week");
-    return;
-  }
-
-  // Get ingredients and recipes from AI
-  const prompt = `For these meals: ${weeklyMeals ? weeklyMeals.meals.join(", ") : ""} 
+  try {
+    // Get ingredients and recipes from AI
+    const prompt = `For these meals: ${weeklyMeals.meals.join(", ")} 
   ${prompts.shopping_list.user}`;
 
-  const response = await gpt35Turbo(
-    prompts.shopping_list.system,
-    prompt,
-  );
+    const response = await gpt35Turbo(prompts.shopping_list.system, prompt);
 
-  await writeToCanvas(
-    `Meal Plan - Week of ${new Date().toLocaleDateString()}`,
-    response,
-    channel,
-  );
-
-  // Remove loading indicator
-  await slack.client.reactions.remove({
-    channel: channel,
-    name: "hourglass_flowing_sand",
-    timestamp: messageTs
-  });
+    await writeToCanvas(
+      `Meal Plan - Week of ${new Date().toLocaleDateString()}`,
+      response,
+      channel,
+    );
+  } catch (error) {
+    logger.error("Failed to create shopping list:", error);
+    await slack.client.chat.postMessage({
+      channel: channel,
+      thread_ts: messageTs,
+      text: "Sorry, creating the shopping list failed. Please try again later.",
+    });
+  } finally {
+    // Always remove loading indicator
+    try {
+      await slack.client.reactions.remove({
+        channel: channel,
+        name: "hourglass_flowing_sand",
+        timestamp: messageTs,
+      });
+    } catch (error) {
+      logger.error("Failed to remove loading reaction:", error);
+    }
+  }
 };
 
 const handleMenuReaction = async ({ messageTs, channel, menuItem, action }) => {
-  logger.info(`Handling menu reaction: ${action} for ${menuItem} in channel ${channel} at messageTs ${messageTs}`);
+  logger.info(
+    `Handling menu reaction: ${action} for ${menuItem} in channel ${channel} at messageTs ${messageTs}`,
+  );
   switch (action) {
     case "like_meal":
     case "dislike_meal":
@@ -198,18 +214,14 @@ async function generateMenu() {
   try {
     logger.info("Generating weekly menu...");
 
-    const dislikedMeals = await findOne(appConfigs.dislikedMealsCollection, {
-      meals: 1,
-    });
+    // Disliked meals live in a single document upserted with an empty query
+    // (see handleLikeDislikeReaction), so match it with {}.
+    const dislikedMeals = await findOne(appConfigs.dislikedMealsCollection, {});
 
-    const lastWeekMeals = await findOne(
-      appConfigs.weeklyMealsCollection,
-      {
-        week: currentWeek - 1,
-        year: currentYear,
-      },
-      { meals: 1, _id: 0 },
-    );
+    const lastWeekMeals = await findOne(appConfigs.weeklyMealsCollection, {
+      week: currentWeek - 1,
+      year: currentYear,
+    });
 
     const dislikedMealsString =
       dislikedMeals?.meals &&
